@@ -12,7 +12,7 @@
                 <el-autocomplete
                     class="search-input small"
                     prefix-icon="el-icon-search"
-                    v-model="state"
+                    v-model="hosname"
                     :fetch-suggestions="querySearchAsync"
                     placeholder="点击输入医院名称"
                     @select="handleSelect"

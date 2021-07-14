@@ -12,7 +12,7 @@
           <el-autocomplete
             class="search-input"
             prefix-icon="el-icon-search"
-            v-model="state"
+            v-model="hosname"
             :fetch-suggestions="querySearchAsync"
             placeholder="点击输入医院名称"
             @select="handleSelect"
@@ -243,8 +243,7 @@ export default {
 
     //查询医院列表
     getList() {
-      hospApi
-        .getPageList(this.page, this.limit, this.searchObj)
+      hospApi.getPageList(this.page, this.limit, this.searchObj)
         .then((response) => {
           for (let i in response.data.content) {
             this.list.push(response.data.content[i]);
@@ -252,6 +251,44 @@ export default {
           this.page = response.data.totalPages;
         });
     },
-  },
-};
+    //根据医院等级查询
+    hostypeSelect(hostype,index) {
+      //准备数据
+      this.list = []
+      this.page = 1
+      this.hostypeActiveIndex = index
+      this.searchObj.hostype = hostype
+      //调用查询医院列表方法
+      this.getList()
+    },
+    //根据地区查询医院
+    districtSelect(districtCode, index) {
+      this.list = []
+      this.page = 1
+      this.provinceActiveIndex = index
+      this.searchObj.districtCode = districtCode
+      this.getList();
+    },
+    //在输入框输入值，弹出下拉框，显示相关内容
+    querySearchAsync(queryString, cb) {
+      this.searchObj = []
+      if(queryString == '') return
+      hospApi.getByHosname(queryString).then(response => {
+        for (let i = 0, len = response.data.length; i <len; i++) {
+          response.data[i].value = response.data[i].hosname
+        }
+        cb(response.data)
+      })
+    },
+    //在下拉框选择某一个内容，执行下面方法，跳转到详情页面中
+    handleSelect(item) {
+      window.location.href = '/hospital/' + item.hoscode
+    },
+    //点击某个医院名称，跳转到详情页面中
+    show(hoscode) {
+      window.location.href = '/hospital/' + hoscode
+    }
+
+  }
+}
 </script>
