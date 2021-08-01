@@ -214,8 +214,24 @@ export default {
     script.src =
       "https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js";
     document.body.appendChild(script);
+
+    // 微信登录回调处理
+    let self = this;
+    window["loginCallback"] = (name, token, openid) => {
+      self.loginCallback(name, token, openid);
+    };
   },
   methods: {
+    loginCallback(name, token, openid) {
+      // 打开手机登录层，绑定手机号，改逻辑与手机登录一致
+      if(openid != '') {
+        this.userInfo.openid = openid
+        this.showLogin()
+      } else {
+        this.setCookies(name, token)
+      }
+    },
+
     // 绑定登录或获取验证码按钮
     btnClick() {
       // 判断是获取验证码还是登录
@@ -345,16 +361,16 @@ export default {
         //跳转页面
         window.location.href = "/";
       } else {
-        window.location.href = command
+        window.location.href = command;
       }
     },
 
     handleSelect(item) {
-      window.location.href = "/hospital/" + item.hoscode
+      window.location.href = "/hospital/" + item.hoscode;
     },
 
     weixinLogin() {
-      this.dialogAtrr.showLoginType = "weixin"
+      this.dialogAtrr.showLoginType = "weixin";
 
       weixinApi.getLoginParam().then((response) => {
         var obj = new WxLogin({
@@ -366,8 +382,8 @@ export default {
           state: response.data.state, // 可设置为简单的随机数加session用来校验
           style: "black", // 提供"black"、"white"可选。二维码的样式
           href: "", // 外部css文件url，需要https
-        })
-      })
+        });
+      });
     },
 
     phoneLogin() {
