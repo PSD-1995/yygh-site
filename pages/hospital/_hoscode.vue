@@ -6,14 +6,21 @@
       <div class="nav-item selected">
         <span
           class="v-link selected dark"
-          :onclick="'javascript:window.location=\'/hospital/' + hospital.hoscode + '\''">
+          :onclick="
+            'javascript:window.location=\'/hospital/' + hospital.hoscode + '\''
+          "
+        >
           预约挂号
         </span>
       </div>
       <div class="nav-item">
         <span
           class="v-link clickable dark"
-          :onclick="'javascript:window.location=\'/hospital/detail/' + hospital.hoscode + '\''"
+          :onclick="
+            'javascript:window.location=\'/hospital/detail/' +
+            hospital.hoscode +
+            '\''
+          "
         >
           医院详情
         </span>
@@ -21,7 +28,11 @@
       <div class="nav-item">
         <span
           class="v-link clickable dark"
-          :onclick="'javascript:window.location=\'/hospital/notice/' + hospital.hoscode +'\''"
+          :onclick="
+            'javascript:window.location=\'/hospital/notice/' +
+            hospital.hoscode +
+            '\''
+          "
         >
           预约须知
         </span>
@@ -152,11 +163,12 @@
   <!-- footer -->
 </template>
 <script>
-import '~/assets/css/hospital_personal.css'
-import '~/assets/css/hospital.css'
+import "~/assets/css/hospital_personal.css";
+import "~/assets/css/hospital.css";
 
-import hospitalApi from '@/api/hosp'
-import cookie from 'js-cookie'
+import hospitalApi from "@/api/hosp";
+import cookie from "js-cookie";
+import userInfoApi from "@/api/userInfo";
 
 export default {
   data() {
@@ -165,45 +177,55 @@ export default {
       activeIndex: 0,
 
       hospital: {
-        param: {}
+        param: {},
       },
-      bookingRule : {},
-      departmentVoList : []
-    }
+      bookingRule: {},
+      departmentVoList: [],
+    };
   },
   created() {
-    this.hoscode = this.$route.params.hoscode
-    this.init()
+    this.hoscode = this.$route.params.hoscode;
+    this.init();
   },
 
   methods: {
     init() {
-      hospitalApi.show(this.hoscode).then(response => {
-        this.hospital = response.data.hospital
-        this.bookingRule = response.data.bookingRule
-      })
+      hospitalApi.show(this.hoscode).then((response) => {
+        this.hospital = response.data.hospital;
+        this.bookingRule = response.data.bookingRule;
+      });
 
-      hospitalApi.findDepartment(this.hoscode).then(response => {
-        this.departmentVoList = response.data
-      })
+      hospitalApi.findDepartment(this.hoscode).then((response) => {
+        this.departmentVoList = response.data;
+      });
     },
 
     move(index, depcode) {
-      this.activeIndex = index
+      this.activeIndex = index;
       document.getElementById(depcode).scrollIntoView();
     },
 
     schedule(depcode) {
       // 登录判断
-      let token = cookie.get('token')
+      let token = cookie.get("token");
       if (!token) {
-        loginEvent.$emit('loginDialogEvent')
-        return
+        loginEvent.$emit("loginDialogEvent");
+        return;
       }
 
-      window.location.href = '/hospital/schedule?hoscode=' + this.hoscode + "&depcode="+ depcode
-    }
-  }
-}
+      //判断认证
+      userInfoApi.getUserInfo().then((response) => {
+        let authStatus = response.data.authStatus;
+        // 状态为2认证通过
+        if (!authStatus || authStatus != 2) {
+          window.location.href = "/user";
+          return
+        }
+      })
 
+      window.location.href =
+        "/hospital/schedule?hoscode=" + this.hoscode + "&depcode=" + depcode;
+    },
+  },
+};
 </script>
